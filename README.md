@@ -1,4 +1,4 @@
-This software connects to http://www.pogdesign.co.uk/cat/ and checks the TV shows of the day, you can chose one and it will look for it in http://thepiratebay.se/ and will also trigger uTorrent to start the download.
+This software connects to http://www.pogdesign.co.uk/cat/ and checks the TV shows of the day, you can chose one and it will look for it in http://thepiratebay.sx/ and will also trigger uTorrent to start the download.
 Is a console environment. Check screenshot.png to see how it looks.
 
 [INSTRUCTIONS]

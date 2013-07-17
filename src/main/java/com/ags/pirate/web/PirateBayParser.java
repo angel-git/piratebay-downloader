@@ -42,9 +42,9 @@ public class PirateBayParser {
          String html;
         try {
             if (useProxy) {
-                html = new HTMLProxyDownloader(user,password).getHtml("http://thepiratebay.se/search/"+convertSearchQuery(serie)+"/0/7/0");
+                html = new HTMLProxyDownloader(user,password).getHtml("http://thepiratebay.sx/search/"+convertSearchQuery(serie)+"/0/7/0");
             } else {
-                html = new HTMLDownloader().getHtml("http://thepiratebay.se/search/"+convertSearchQuery(serie)+"/0/7/0");
+                html = new HTMLDownloader().getHtml("http://thepiratebay.sx/search/"+convertSearchQuery(serie)+"/0/7/0");
             }
         } catch (Exception e) {
             return torrents;
