@@ -1,5 +1,6 @@
 package com.ags.pirate;
 
+import com.ags.pirate.configuration.Configuration;
 import com.ags.pirate.model.Serie;
 import com.ags.pirate.model.Torrent;
 import com.ags.pirate.web.CalendarParser;
@@ -9,10 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,12 +28,9 @@ public class Pirate {
     private final String search = "\033[32m";
     private final String lastep = "\033[31m";
     private final String firstep = "\033[33m";
-    private String proxyHost;
-    private String proxyPort;
-    private String proxyUser;
-    private String proxyPassword;
-    private String utorrent;
-    private String pirateBayHost;
+
+    private Configuration configuration;
+
 
     public static void main(String... args) {
         new Pirate().preExecute(args);
@@ -42,21 +38,23 @@ public class Pirate {
 
     public void preExecute(String... args) {
         try {
-            this.readConfiguration();
+            this.configuration = new Configuration("configuration.properties");
         } catch (IOException e) {
             LOGGER.error("There are some problems with the configuration file. Please review it");
+            System.exit(0);
         }
         if (args.length < 1) {
-            LOGGER.warn("Executing without propxy, add option [-proxy] to connecto through proxy");
+            LOGGER.warn("Executing without propxy, add option [-proxy] to connect through proxy");
             this.execute(false);
         } else {
             if (args[0].equals("-proxy")) {
-                System.setProperty("http.proxyHost", proxyHost);
-                System.setProperty("http.proxyPort", proxyPort);
+                System.setProperty("http.proxyHost", this.configuration.getPiratebayHost());
+                System.setProperty("http.proxyPort", this.configuration.getProxyPort());
                 LOGGER.info("proxy ADDED!");
                 this.execute(true);
             } else {
-                LOGGER.error("option not recognized. Only option avalaible is -proxy");
+                LOGGER.error("option not recognized. Only option available is -proxy");
+                System.exit(0);
             }
 
         }
@@ -65,7 +63,7 @@ public class Pirate {
 
     private void execute(boolean useProxy) {
 
-        List<Serie> series = new CalendarParser(proxyUser, proxyPassword).parseCalendar(useProxy);
+        List<Serie> series = new CalendarParser(this.configuration.getProxyUser(), this.configuration.getProxyPassword()).parseCalendar(useProxy);
         if (series.size() < 1) {
             //no series found exit program
             LOGGER.warn("no series has been found for today");
@@ -79,20 +77,6 @@ public class Pirate {
 
     }
 
-    private void readConfiguration() throws IOException {
-
-        Properties prop = new Properties();
-        InputStream in = getClass().getResourceAsStream("configuration.properties");
-        prop.load(in);
-        in.close();
-
-        proxyHost = prop.get("pirate.http.proxyHost").toString();
-        proxyPort = prop.get("pirate.http.proxyPort").toString();
-        proxyUser = prop.get("pirate.http.proxyUser").toString();
-        proxyPassword = prop.get("pirate.http.proxyPassword").toString();
-        utorrent = prop.get("pirate.utorrent.folder").toString();
-        pirateBayHost = prop.get("pirate.host").toString();
-    }
 
     private void search(boolean useProxy, List<Serie> series) throws IOException {
 
@@ -121,7 +105,9 @@ public class Pirate {
             serie = series.get(option - 1);
         }
         LOGGER.info("serie selected: " + serie);
-        List<Torrent> torrents = new PirateBayParser(proxyUser,proxyPassword,pirateBayHost).searchSerie(useProxy, serie);
+        List<Torrent> torrents = new PirateBayParser(this.configuration.getProxyUser(),
+                                                     this.configuration.getProxyPassword(),
+                                                     this.configuration.getPiratebayHost()).searchSerie(useProxy, serie);
 
         if (torrents == null || torrents.size() < 1) {
             LOGGER.warn("no torrents found :-(");
@@ -206,7 +192,7 @@ public class Pirate {
     private void downloadTorrent(Torrent torrent) {
         LOGGER.info("downloading " + torrent.getName());
         try {
-            String command = utorrent;
+            String command = this.configuration.getUtorrent();
             LOGGER.info("executing uTorrent...");
             ProcessBuilder processBuilder = new ProcessBuilder(command, torrent.getLink());
             processBuilder.start();
