@@ -42,4 +42,9 @@ public class Torrent {
     public String getDescription(){
         return description;
     }
+
+    @Override
+    public String toString() {
+        return getName()+" "+ getSeeds() + " " + getLeechers();
+    }
 }

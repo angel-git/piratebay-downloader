@@ -6,48 +6,52 @@
 
     <groupId>com.ags</groupId>
     <artifactId>piratebay-downloader</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
 
     <profiles>
-	<profile>
-			<id>package</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.1.1</version>
-				<configuration>
-					<platforms>
-           				<platform>all</platform>
-          			</platforms>
-					<programs>
-						<program>
-							<mainClass>com.ags.pirate.Pirate</mainClass>
-							<name>Pirate</name>
-						</program>
-					</programs>
-				</configuration>
-				<executions>
-					<execution>
-						<id>pack</id>
-						<phase>package</phase>
-						<goals>
-							<goal>assemble</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-			
-	</profile>
-	</profiles>
+        <profile>
+            <id>package</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>appassembler-maven-plugin</artifactId>
+                        <version>1.1.1</version>
+                        <configuration>
+                            <platforms>
+                                <platform>all</platform>
+                            </platforms>
+                            <programs>
+                                <program>
+                                    <mainClass>com.ags.pirate.Pirate</mainClass>
+                                    <name>Pirate</name>
+                                </program>
+                                <program>
+                                    <mainClass>com.ags.pirate.PirateGui</mainClass>
+                                    <name>PirateGui</name>
+                                </program>
+                            </programs>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>pack</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assemble</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
