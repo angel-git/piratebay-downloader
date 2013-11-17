@@ -28,11 +28,13 @@ public class PirateBayParser {
 
     private final String password;
     private final String user;
+    private final String pirateHost;
 
 
-    public PirateBayParser(String user,String password) {
+    public PirateBayParser(String user, String password, String pirateHost) {
         this.user=user;
         this.password=password;
+        this.pirateHost=pirateHost;
     }
 
     public List<Torrent> searchSerie(boolean useProxy,Serie serie)  {
@@ -42,9 +44,9 @@ public class PirateBayParser {
          String html;
         try {
             if (useProxy) {
-                html = new HTMLProxyDownloader(user,password).getHtml("http://thepiratebay.sx/search/"+convertSearchQuery(serie)+"/0/7/0");
+                html = new HTMLProxyDownloader(user,password).getHtml(pirateHost+"/search/"+convertSearchQuery(serie)+"/0/7/0");
             } else {
-                html = new HTMLDownloader().getHtml("http://thepiratebay.sx/search/"+convertSearchQuery(serie)+"/0/7/0");
+                html = new HTMLDownloader().getHtml(pirateHost+"/search/"+convertSearchQuery(serie)+"/0/7/0");
             }
         } catch (Exception e) {
             return torrents;

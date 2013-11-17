@@ -34,6 +34,7 @@ public class Pirate {
     private String proxyUser;
     private String proxyPassword;
     private String utorrent;
+    private String pirateBayHost;
 
     public static void main(String... args) {
         new Pirate().preExecute(args);
@@ -44,7 +45,6 @@ public class Pirate {
             this.readConfiguration();
         } catch (IOException e) {
             LOGGER.error("There are some problems with the configuration file. Please review it");
-            return;
         }
         if (args.length < 1) {
             LOGGER.warn("Executing without propxy, add option [-proxy] to connecto through proxy");
@@ -57,7 +57,6 @@ public class Pirate {
                 this.execute(true);
             } else {
                 LOGGER.error("option not recognized. Only option avalaible is -proxy");
-                return;
             }
 
         }
@@ -92,6 +91,7 @@ public class Pirate {
         proxyUser = prop.get("pirate.http.proxyUser").toString();
         proxyPassword = prop.get("pirate.http.proxyPassword").toString();
         utorrent = prop.get("pirate.utorrent.folder").toString();
+        pirateBayHost = prop.get("pirate.host").toString();
     }
 
     private void search(boolean useProxy, List<Serie> series) throws IOException {
@@ -121,7 +121,7 @@ public class Pirate {
             serie = series.get(option - 1);
         }
         LOGGER.info("serie selected: " + serie);
-        List<Torrent> torrents = new PirateBayParser(proxyUser,proxyPassword).searchSerie(useProxy, serie);
+        List<Torrent> torrents = new PirateBayParser(proxyUser,proxyPassword,pirateBayHost).searchSerie(useProxy, serie);
 
         if (torrents == null || torrents.size() < 1) {
             LOGGER.warn("no torrents found :-(");
@@ -200,8 +200,7 @@ public class Pirate {
         LOGGER.info("type the torrent's name:");
         BufferedReader leerEntrada = new BufferedReader(new InputStreamReader(System.in));
         String option = leerEntrada.readLine();
-        Serie serie = new Serie(option, "", "");
-        return serie;
+        return new Serie(option, "", "");
     }
 
     private void downloadTorrent(Torrent torrent) {

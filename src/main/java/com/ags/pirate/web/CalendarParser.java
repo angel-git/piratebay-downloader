@@ -10,7 +10,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,14 +80,14 @@ public class CalendarParser {
         String season = split[1];
         String ep = split[4];
         if (season.length() < 2) {
-            sb.append("s0" + season);
+            sb.append("s0").append(season);
         } else {
-            sb.append("s" + season);
+            sb.append("s").append(season);
         }
         if (ep.length() < 2) {
-            sb.append("e0" + ep);
+            sb.append("e0").append(ep);
         } else {
-            sb.append("e" + ep);
+            sb.append("e").append(ep);
         }
         return sb.toString();
     }
