@@ -1,21 +1,21 @@
 package com.ags.pirate;
 
+import com.ags.pirate.configuration.Configuration;
 import com.ags.pirate.event.SerieSelectedEvent;
 import com.ags.pirate.event.TorrentSelectedEvent;
 import com.ags.pirate.gui.SeriesList;
 import com.ags.pirate.gui.TorrentList;
-import com.ags.pirate.listener.DoubleClickListener;
 import com.ags.pirate.listener.SerieSelectedListener;
 import com.ags.pirate.listener.TorrentSelectedListener;
 import com.ags.pirate.model.Serie;
 import com.ags.pirate.model.Torrent;
+import com.ags.pirate.service.PirateService;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.util.List;
 
 /**
@@ -24,11 +24,15 @@ import java.util.List;
  * @author Angel
  * @since 17/11/13
  */
-public class PirateGui extends AbstractPirate {
+public class PirateGui  {
 
     private static Logger LOGGER = LoggerFactory.getLogger(Pirate.class);
 
+    private PirateService pirateService;
+
     private void execute() {
+        this.pirateService = new PirateService();
+
         //Create and set up the window.
         final JFrame frame = new JFrame("PirateBay downloader");
         frame.setSize(800, 600);
@@ -41,7 +45,7 @@ public class PirateGui extends AbstractPirate {
         frame.add(infoPanel, BorderLayout.SOUTH);
 
 
-        final List<Serie> series = getSeries(false);
+        final List<Serie> series = pirateService.getSeries();
         final SeriesList seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
         final JPanel seriesPanel = new JPanel();
         final JPanel torrentPanel = new JPanel();
@@ -57,7 +61,7 @@ public class PirateGui extends AbstractPirate {
                     @Override
                     public void run() {
 
-                        List<Torrent> torrents = getTorrents(false, event.getSerieSelected());
+                        List<Torrent> torrents = pirateService.getTorrents(event.getSerieSelected());
                         if (torrents.size() == 0) {
                             //TODO add alert message
                             LOGGER.warn("no torrents found!");
@@ -68,7 +72,7 @@ public class PirateGui extends AbstractPirate {
                         torrentsAvailable.setTorrentSelectedListener(new TorrentSelectedListener() {
                             @Override
                             public void actionPerformed(TorrentSelectedEvent event) {
-                                downloadTorrent(event.getTorrentSelected());
+                                pirateService.downloadTorrent(event.getTorrentSelected(), Configuration.getInstance().getUtorrent());
                             }
                         });
                         torrentPanel.removeAll();

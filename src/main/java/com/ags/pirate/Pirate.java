@@ -1,7 +1,11 @@
 package com.ags.pirate;
 
+import com.ags.pirate.configuration.Configuration;
 import com.ags.pirate.model.Serie;
 import com.ags.pirate.model.Torrent;
+import com.ags.pirate.service.PirateService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,8 +19,9 @@ import java.util.List;
  *         Date: 3/10/12
  *         Time: 19:15
  */
-public class Pirate extends AbstractPirate {
+public class Pirate  {
 
+    private static Logger LOGGER = LoggerFactory.getLogger(Pirate.class);
 
     private final String lineSeparator = "\033[35m-------------------------";
     private final String back = "\033[36m";
@@ -24,40 +29,24 @@ public class Pirate extends AbstractPirate {
     private final String lastep = "\033[31m";
     private final String firstep = "\033[33m";
 
+    private PirateService pirateService;
+
 
     public static void main(String... args) throws IOException {
-        new Pirate().preExecute(args);
+        new Pirate().execute();
     }
 
-    public void preExecute(String... args) {
-        if (args.length < 1) {
-            LOGGER.warn("Executing without propxy, add option [-proxy] to connect through proxy");
-            this.execute(false);
-        } else {
-            if (args[0].equals("-proxy")) {
-                System.setProperty("http.proxyHost", this.configuration.getPiratebayHost());
-                System.setProperty("http.proxyPort", this.configuration.getProxyPort());
-                LOGGER.info("proxy ADDED!");
-                this.execute(true);
-            } else {
-                LOGGER.error("option not recognized. Only option available is -proxy");
-                System.exit(0);
-            }
 
-        }
-
-    }
-
-    private void execute(boolean useProxy) {
-
-        List<Serie> series = getSeries(useProxy);
+    private void execute() {
+        this.pirateService = new PirateService();
+        List<Serie> series = pirateService.getSeries();
         if (series.size() < 1) {
             //no series found exit program
             LOGGER.warn("no series has been found for today");
             return;
         }
         try {
-            search(useProxy, series);
+            search(series);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -65,7 +54,7 @@ public class Pirate extends AbstractPirate {
     }
 
 
-    private void search(boolean useProxy, List<Serie> series) throws IOException {
+    private void search(List<Serie> series) throws IOException {
 
         LOGGER.info("press the number to search the torrents");
         LOGGER.info(back + "0: EXIT");
@@ -92,11 +81,11 @@ public class Pirate extends AbstractPirate {
             serie = series.get(option - 1);
         }
         LOGGER.info("serie selected: " + serie);
-        List<Torrent> torrents = getTorrents(useProxy, serie);
+        List<Torrent> torrents = pirateService.getTorrents(serie);
 
         if (torrents == null || torrents.size() < 1) {
             LOGGER.warn("no torrents found :-(");
-            search(useProxy, series);
+            search(series);
         } else {
 
             LOGGER.info("press the number to download the serie");
@@ -115,10 +104,10 @@ public class Pirate extends AbstractPirate {
             }
             int optionTorrent = readOption(torrents.size());
             if (optionTorrent == 0) {
-                search(useProxy, series);
+                search(series);
             } else {
-                this.downloadTorrent(torrents.get(optionTorrent - 1));
-                search(useProxy, series);
+                pirateService.downloadTorrent(torrents.get(optionTorrent - 1), Configuration.getInstance().getUtorrent());
+                search(series);
             }
         }
 

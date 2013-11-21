@@ -12,6 +12,23 @@ import java.util.Properties;
 public class Configuration {
 
 
+    private static Configuration ourInstance = new Configuration("configuration.properties");
+
+    public static Configuration getInstance() {
+        return ourInstance;
+    }
+
+    private Configuration(String configurationFile) {
+        InputStream resourceAsStream = getClass().getResourceAsStream(configurationFile);
+        this.prop = new Properties();
+        try {
+            prop.load(resourceAsStream);
+            resourceAsStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
+
     private Properties prop = new Properties();
 
     private final static String PROXY_HOST = "pirate.http.proxyHost";
@@ -20,13 +37,8 @@ public class Configuration {
     private final static String PROXY_PASSWORD = "pirate.http.proxyPassword";
     private final static String UTORRENT = "pirate.utorrent.folder";
     private final static String PIRATEBAY_HOST = "pirate.host";
+    private final static String PROXY_ACTIVATED = "pirate.http.proxyActivated";
 
-    public Configuration(String configurationFile) throws IOException {
-        InputStream resourceAsStream = getClass().getResourceAsStream(configurationFile);
-        this.prop = new Properties();
-        prop.load(resourceAsStream);
-        resourceAsStream.close();
-    }
 
     public String getProxyHost() {
         return prop.getProperty(PROXY_HOST);
@@ -50,5 +62,9 @@ public class Configuration {
 
     public String getPiratebayHost() {
         return prop.getProperty(PIRATEBAY_HOST);
+    }
+
+    public boolean isProxyEnabled(){
+        return Boolean.parseBoolean(prop.getProperty(PROXY_ACTIVATED).toUpperCase());
     }
 }

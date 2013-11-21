@@ -1,5 +1,6 @@
 package com.ags.pirate.web;
 
+import com.ags.pirate.configuration.Configuration;
 import com.ags.pirate.model.Serie;
 import com.ags.pirate.web.downloader.HTMLDownloader;
 import com.ags.pirate.web.downloader.HTMLProxyDownloader;
@@ -20,25 +21,27 @@ import java.util.List;
  *         Date: 3/10/12
  *         Time: 20:23
  */
-public class CalendarParser {
+public class CalendarParser  {
 
     private static Logger LOGGER = LoggerFactory.getLogger(CalendarParser.class);
-    private final String password;
-    private final String user;
+    private final Configuration configuration;
 
-
-    public CalendarParser(String user,String password) {
-        this.user=user;
-        this.password=password;
+    public CalendarParser() {
+        this.configuration = Configuration.getInstance();
     }
 
-    public List<Serie> parseCalendar(boolean useProxy) {
+    public List<Serie> parseCalendar() {
         List<Serie> series = new ArrayList<Serie>();
 
         String html;
         try {
-            if (useProxy) {
-                html = new HTMLProxyDownloader(user,password).getHtml("http://www.pogdesign.co.uk/cat");
+            if (configuration.isProxyEnabled()) {
+                html = new HTMLProxyDownloader(
+                            configuration.getProxyUser(),
+                            configuration.getProxyPassword(),
+                            configuration.getProxyHost(),
+                            configuration.getProxyPort())
+                        .getHtml("http://www.pogdesign.co.uk/cat");
             } else {
                 html = new HTMLDownloader().getHtml("http://www.pogdesign.co.uk/cat");
             }

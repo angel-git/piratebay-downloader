@@ -20,13 +20,14 @@ public class HTMLProxyDownloader implements Downloader {
     private String user;
     private String password;
 
-    public HTMLProxyDownloader(String user,String password) {
+    public HTMLProxyDownloader(String user,String password, String proxyHost, String proxyPort) {
         this.user=user;
         this.password=password;
+        System.setProperty("http.proxyHost", proxyHost);
+        System.setProperty("http.proxyPort", proxyPort);
     }
 
     public String getHtml(String urlString) throws Exception {
-
         LOGGER.info("connecting to " + urlString);
         try {
             URL url = new URL(urlString);

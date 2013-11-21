@@ -1,5 +1,6 @@
 package com.ags.pirate.web;
 
+import com.ags.pirate.configuration.Configuration;
 import com.ags.pirate.model.Serie;
 import com.ags.pirate.model.Torrent;
 import com.ags.pirate.web.downloader.HTMLDownloader;
@@ -25,28 +26,27 @@ import java.util.List;
 public class PirateBayParser {
 
     private static Logger LOGGER = LoggerFactory.getLogger(PirateBayParser.class);
+    private final Configuration configuration;
 
-    private final String password;
-    private final String user;
-    private final String pirateHost;
-
-
-    public PirateBayParser(String user, String password, String pirateHost) {
-        this.user=user;
-        this.password=password;
-        this.pirateHost=pirateHost;
+    public PirateBayParser() {
+        this.configuration = Configuration.getInstance();
     }
 
-    public List<Torrent> searchSerie(boolean useProxy,Serie serie)  {
+    public List<Torrent> searchSerie(Serie serie)  {
 
         List<Torrent> torrents = new ArrayList<Torrent>();
 
          String html;
         try {
-            if (useProxy) {
-                html = new HTMLProxyDownloader(user,password).getHtml(pirateHost+"/search/"+convertSearchQuery(serie)+"/0/7/0");
+            if (configuration.isProxyEnabled()) {
+                html = new HTMLProxyDownloader(
+                        configuration.getProxyUser(),
+                        configuration.getProxyPassword(),
+                        configuration.getProxyHost(),
+                        configuration.getProxyPort())
+                       .getHtml(configuration.getPiratebayHost()+"/search/"+convertSearchQuery(serie)+"/0/7/0");
             } else {
-                html = new HTMLDownloader().getHtml(pirateHost+"/search/"+convertSearchQuery(serie)+"/0/7/0");
+                html = new HTMLDownloader().getHtml(configuration.getPiratebayHost()+"/search/"+convertSearchQuery(serie)+"/0/7/0");
             }
         } catch (Exception e) {
             return torrents;
