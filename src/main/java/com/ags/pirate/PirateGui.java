@@ -4,9 +4,11 @@ import com.ags.pirate.configuration.Configuration;
 import com.ags.pirate.event.SerieSelectedEvent;
 import com.ags.pirate.event.TorrentSelectedEvent;
 import com.ags.pirate.gui.SeriesList;
-import com.ags.pirate.gui.TorrentList;
+import com.ags.pirate.gui.TorrentTable;
 import com.ags.pirate.listener.SerieSelectedListener;
 import com.ags.pirate.listener.TorrentSelectedListener;
+import com.ags.pirate.model.BeanItemContainer;
+import com.ags.pirate.model.BeanItemTableModel;
 import com.ags.pirate.model.Serie;
 import com.ags.pirate.model.Torrent;
 import com.ags.pirate.service.PirateService;
@@ -48,10 +50,13 @@ public class PirateGui  {
         final List<Serie> series = pirateService.getSeries();
         final SeriesList seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
         final JPanel seriesPanel = new JPanel();
-        final JPanel torrentPanel = new JPanel();
+
         frame.add(seriesPanel, BorderLayout.WEST);
         seriesPanel.add(seriesAvailable);
+        final TorrentTable torrentTable = new TorrentTable();
+        final JScrollPane torrentPanel = new JScrollPane(torrentTable);
         frame.add(torrentPanel, BorderLayout.EAST);
+
 
         seriesAvailable.setSerieSelectedListener(new SerieSelectedListener() {
             @Override
@@ -66,17 +71,20 @@ public class PirateGui  {
                             //TODO add alert message
                             LOGGER.warn("no torrents found!");
                         }
-                        TorrentList torrentsAvailable = new TorrentList(torrents.toArray(new Torrent[torrents.size()]));
                         infoPanel.removeAll();
                         infoPanel.add(new JTextArea("Found " + torrents.size() + " torrent(s)"));
-                        torrentsAvailable.setTorrentSelectedListener(new TorrentSelectedListener() {
+                        torrentTable.setTorrentSelectedListener(new TorrentSelectedListener() {
                             @Override
                             public void actionPerformed(TorrentSelectedEvent event) {
                                 pirateService.downloadTorrent(event.getTorrentSelected(), Configuration.getInstance().getUtorrent());
                             }
                         });
-                        torrentPanel.removeAll();
-                        torrentPanel.add(torrentsAvailable);
+                        BeanItemContainer<Torrent> beanItemContainer = new BeanItemContainer<Torrent>(torrents);
+                        BeanItemTableModel tableModel = new BeanItemTableModel(beanItemContainer);
+                        tableModel.setVisibleColumns(new String[]{"name","seeds","leechers"});
+                        tableModel.setColumnHeader("name", "Torrent's name");
+                        torrentTable.setModel(tableModel);
+
                         frame.pack();
                     }
                 };
