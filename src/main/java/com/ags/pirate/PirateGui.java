@@ -44,18 +44,11 @@ public class PirateGui  {
     }
 
 
-    private BeanItemTableModel createTorrentBeanItemTableModel(List<Torrent> torrents) {
-        BeanItemContainer<Torrent> beanItemContainer = new BeanItemContainer<Torrent>(torrents);
-        BeanItemTableModel tableModel = new BeanItemTableModel(beanItemContainer);
-        tableModel.setVisibleColumns(new String[]{"name", "seeds", "leechers"});
-        tableModel.setColumnHeader("name", "Torrent's name");
-        return tableModel;
-    }
 
     private void createComponents() {
         //Create and set up the window.
         frame = new JFrame("PirateBay downloader");
-        frame.setSize(800, 600);
+        frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         MigLayout layout = new MigLayout("", "[][]", "[]");
         frame.getContentPane().setLayout(layout);
@@ -73,6 +66,7 @@ public class PirateGui  {
 
         //torrent lsit
         torrentTable = new TorrentTable();
+        torrentTable.setAutoCreateRowSorter(true);
         JScrollPane torrentPanel = new JScrollPane(torrentTable);
         frame.add(torrentPanel, BorderLayout.EAST);
 
@@ -102,6 +96,8 @@ public class PirateGui  {
                         });
                         BeanItemTableModel tableModel = createTorrentBeanItemTableModel(torrents);
                         torrentTable.setModel(tableModel);
+                        torrentTable.getColumn("seeds").setMaxWidth(50);
+                        torrentTable.getColumn("leechers").setMaxWidth(60);
 
                         frame.pack();
                     }
@@ -120,6 +116,14 @@ public class PirateGui  {
         //Display the window.
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private BeanItemTableModel createTorrentBeanItemTableModel(List<Torrent> torrents) {
+        BeanItemContainer<Torrent> beanItemContainer = new BeanItemContainer<Torrent>(torrents);
+        BeanItemTableModel tableModel = new BeanItemTableModel(beanItemContainer);
+        tableModel.setVisibleColumns(new String[]{"name", "seeds", "leechers"});
+        tableModel.setColumnHeader("name", "Torrent's name");
+        return tableModel;
     }
 
     public static void main(String[] args) {

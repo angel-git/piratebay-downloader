@@ -59,4 +59,9 @@ public class BeanItemTableModel extends AbstractTableModel {
     public Object getRow(int rowIndex) {
         return beanItemCollection.get(rowIndex).getBeanItem();
     }
+
+    public Class getColumnClass(int c) {
+        return getValueAt(0, c).getClass();
+    }
+
 }
