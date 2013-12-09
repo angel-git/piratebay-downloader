@@ -31,33 +31,54 @@ public class PirateGui  {
     private static Logger LOGGER = LoggerFactory.getLogger(Pirate.class);
 
     private PirateService pirateService;
+    private JFrame frame;
+    private SeriesList seriesAvailable;
+    private JPanel infoPanel;
+    private TorrentTable torrentTable;
 
     private void execute() {
         this.pirateService = new PirateService();
+        this.createComponents();
+        this.createListeners();
+        this.displayComponents();
+    }
 
+
+    private BeanItemTableModel createTorrentBeanItemTableModel(List<Torrent> torrents) {
+        BeanItemContainer<Torrent> beanItemContainer = new BeanItemContainer<Torrent>(torrents);
+        BeanItemTableModel tableModel = new BeanItemTableModel(beanItemContainer);
+        tableModel.setVisibleColumns(new String[]{"name", "seeds", "leechers"});
+        tableModel.setColumnHeader("name", "Torrent's name");
+        return tableModel;
+    }
+
+    private void createComponents() {
         //Create and set up the window.
-        final JFrame frame = new JFrame("PirateBay downloader");
+        frame = new JFrame("PirateBay downloader");
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         MigLayout layout = new MigLayout("", "[][]", "[]");
         frame.getContentPane().setLayout(layout);
 
-
-        final JPanel infoPanel = new JPanel();
+        //info panel
+        infoPanel = new JPanel();
         frame.add(infoPanel, BorderLayout.SOUTH);
 
-
-        final List<Serie> series = pirateService.getSeries();
-        final SeriesList seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
-        final JPanel seriesPanel = new JPanel();
-
+        //series list
+        List<Serie> series = pirateService.getSeries();
+        seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
+        JPanel seriesPanel = new JPanel();
         frame.add(seriesPanel, BorderLayout.WEST);
         seriesPanel.add(seriesAvailable);
-        final TorrentTable torrentTable = new TorrentTable();
-        final JScrollPane torrentPanel = new JScrollPane(torrentTable);
+
+        //torrent lsit
+        torrentTable = new TorrentTable();
+        JScrollPane torrentPanel = new JScrollPane(torrentTable);
         frame.add(torrentPanel, BorderLayout.EAST);
 
+    }
 
+    private void createListeners() {
         seriesAvailable.setSerieSelectedListener(new SerieSelectedListener() {
             @Override
             public void actionPerformed(final SerieSelectedEvent event) {
@@ -79,10 +100,7 @@ public class PirateGui  {
                                 pirateService.downloadTorrent(event.getTorrentSelected(), Configuration.getInstance().getUtorrent());
                             }
                         });
-                        BeanItemContainer<Torrent> beanItemContainer = new BeanItemContainer<Torrent>(torrents);
-                        BeanItemTableModel tableModel = new BeanItemTableModel(beanItemContainer);
-                        tableModel.setVisibleColumns(new String[]{"name","seeds","leechers"});
-                        tableModel.setColumnHeader("name", "Torrent's name");
+                        BeanItemTableModel tableModel = createTorrentBeanItemTableModel(torrents);
                         torrentTable.setModel(tableModel);
 
                         frame.pack();
@@ -95,13 +113,14 @@ public class PirateGui  {
                 frame.pack();
             }
         });
+    }
 
 
+    private void displayComponents() {
         //Display the window.
         frame.pack();
         frame.setVisible(true);
     }
-
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
