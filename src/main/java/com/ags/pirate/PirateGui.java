@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
@@ -26,8 +28,10 @@ import java.util.List;
  * @author Angel
  * @since 17/11/13
  */
-public class PirateGui  {
+public class PirateGui {
 
+    public static final int WIDTH = 900;
+    public static final int HEIGHT = 600;
     private static Logger LOGGER = LoggerFactory.getLogger(Pirate.class);
 
     private PirateService pirateService;
@@ -35,6 +39,7 @@ public class PirateGui  {
     private SeriesList seriesAvailable;
     private JPanel infoPanel;
     private TorrentTable torrentTable;
+    private JButton searchButton;
 
     private void execute() {
         this.pirateService = new PirateService();
@@ -44,11 +49,10 @@ public class PirateGui  {
     }
 
 
-
     private void createComponents() {
         //Create and set up the window.
         frame = new JFrame("PirateBay downloader");
-        frame.setSize(900, 600);
+        frame.setSize(WIDTH, HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         MigLayout layout = new MigLayout("", "[][]", "[]");
         frame.getContentPane().setLayout(layout);
@@ -60,11 +64,14 @@ public class PirateGui  {
         //series list
         List<Serie> series = pirateService.getSeries();
         seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
+        searchButton = new JButton("Custom search");
         JPanel seriesPanel = new JPanel();
+        seriesPanel.setLayout(new MigLayout());
         frame.add(seriesPanel, BorderLayout.WEST);
-        seriesPanel.add(seriesAvailable);
+        seriesPanel.add(seriesAvailable, "wrap");
+        seriesPanel.add(searchButton);
 
-        //torrent lsit
+        //torrent list
         torrentTable = new TorrentTable();
         torrentTable.setAutoCreateRowSorter(true);
         JScrollPane torrentPanel = new JScrollPane(torrentTable);
@@ -73,40 +80,20 @@ public class PirateGui  {
     }
 
     private void createListeners() {
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String input = JOptionPane.showInputDialog(frame, "Search torrents");
+                if (input != null && !input.trim().equals("")) {
+                    searchTorrents(new Serie(input, "", ""));
+                }
+            }
+        });
+
         seriesAvailable.setSerieSelectedListener(new SerieSelectedListener() {
             @Override
             public void actionPerformed(final SerieSelectedEvent event) {
-                //different thread to update the UI
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-
-                        List<Torrent> torrents = pirateService.getTorrents(event.getSerieSelected());
-                        if (torrents.size() == 0) {
-                            //TODO add alert message
-                            LOGGER.warn("no torrents found!");
-                        }
-                        infoPanel.removeAll();
-                        infoPanel.add(new JTextArea("Found " + torrents.size() + " torrent(s)"));
-                        torrentTable.setTorrentSelectedListener(new TorrentSelectedListener() {
-                            @Override
-                            public void actionPerformed(TorrentSelectedEvent event) {
-                                pirateService.downloadTorrent(event.getTorrentSelected(), Configuration.getInstance().getUtorrent());
-                            }
-                        });
-                        BeanItemTableModel tableModel = createTorrentBeanItemTableModel(torrents);
-                        torrentTable.setModel(tableModel);
-                        torrentTable.getColumn("seeds").setMaxWidth(50);
-                        torrentTable.getColumn("leechers").setMaxWidth(60);
-
-                        frame.pack();
-                    }
-                };
-                new Thread(runnable).start();
-
-                infoPanel.removeAll();
-                infoPanel.add(new JTextArea("Searching torrents for " + event.getSerieSelected()));
-                frame.pack();
+                searchTorrents(event.getSerieSelected());
             }
         });
     }
@@ -125,6 +112,49 @@ public class PirateGui  {
         tableModel.setColumnHeader("name", "Torrent's name");
         return tableModel;
     }
+
+    private void searchTorrents(final Serie serie) {
+        //different thread to update the UI
+        seriesAvailable.setEnabled(false);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<Torrent> torrents = pirateService.getTorrents(serie);
+                    if (torrents.size() == 0) {
+                        //TODO add alert message
+                        LOGGER.warn("no torrents found!");
+                    }
+                    populateTorrents(torrents);
+                } finally {
+                    frame.pack();
+                    seriesAvailable.setEnabled(true);
+                }
+            }
+        };
+        new Thread(runnable).start();
+
+        infoPanel.removeAll();
+        infoPanel.add(new JLabel(new ImageIcon(getClass().getResource("1-1.gif"))));
+        infoPanel.add(new JTextArea("Searching torrents for " + serie.getTitle()));
+        frame.pack();
+    }
+
+    private void populateTorrents(List<Torrent> torrents) {
+        infoPanel.removeAll();
+        infoPanel.add(new JTextArea("Found " + torrents.size() + " torrent(s)"));
+        torrentTable.setTorrentSelectedListener(new TorrentSelectedListener() {
+            @Override
+            public void actionPerformed(TorrentSelectedEvent event) {
+                pirateService.downloadTorrent(event.getTorrentSelected(), Configuration.getInstance().getUtorrent());
+            }
+        });
+        BeanItemTableModel tableModel = createTorrentBeanItemTableModel(torrents);
+        torrentTable.setModel(tableModel);
+        torrentTable.getColumn("seeds").setMaxWidth(50);
+        torrentTable.getColumn("leechers").setMaxWidth(60);
+    }
+
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

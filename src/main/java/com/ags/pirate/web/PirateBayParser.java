@@ -80,8 +80,6 @@ public class PirateBayParser {
             LOGGER.error("an error raised when parsing the table of the results!!");
             throw e;
         }
-
-
     }
 
     private static String convertSearchQuery(Serie serie) {
