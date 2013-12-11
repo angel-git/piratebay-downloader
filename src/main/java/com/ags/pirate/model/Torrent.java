@@ -43,6 +43,11 @@ public class Torrent {
         return description;
     }
 
+    public String getInfo() {
+        StringBuilder sb = new StringBuilder();
+        return sb.append("<html><b>").append(getName()).append("</b><br>").append(getDescription()).append("</html>").toString();
+    }
+
     @Override
     public String toString() {
         return getName()+" "+ getSeeds() + " " + getLeechers();

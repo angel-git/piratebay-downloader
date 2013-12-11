@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -108,8 +109,8 @@ public class PirateGui {
     private BeanItemTableModel createTorrentBeanItemTableModel(List<Torrent> torrents) {
         BeanItemContainer<Torrent> beanItemContainer = new BeanItemContainer<Torrent>(torrents);
         BeanItemTableModel tableModel = new BeanItemTableModel(beanItemContainer);
-        tableModel.setVisibleColumns(new String[]{"name", "seeds", "leechers"});
-        tableModel.setColumnHeader("name", "Torrent's name");
+        tableModel.setVisibleColumns(new String[]{"info", "seeds", "leechers"});
+        tableModel.setColumnHeader("info", "Torrent's name");
         return tableModel;
     }
 
@@ -153,6 +154,7 @@ public class PirateGui {
         torrentTable.setModel(tableModel);
         torrentTable.getColumn("seeds").setMaxWidth(50);
         torrentTable.getColumn("leechers").setMaxWidth(60);
+        torrentTable.setRowHeight(33);
     }
 
 
