@@ -61,7 +61,11 @@ public class BeanItemTableModel extends AbstractTableModel {
     }
 
     public Class getColumnClass(int c) {
-        return getValueAt(0, c).getClass();
+        if (beanItemCollection.size() > 0) {
+            return getValueAt(0, c).getClass();
+        } else {
+            return String.class;
+        }
     }
 
 }
