@@ -5,6 +5,8 @@ import com.ags.pirate.event.SerieSelectedEvent;
 import com.ags.pirate.event.TorrentSelectedEvent;
 import com.ags.pirate.gui.SeriesList;
 import com.ags.pirate.gui.TorrentTable;
+import com.ags.pirate.gui.fal.ColorProvider;
+import com.ags.pirate.gui.fal.ScrollBar;
 import com.ags.pirate.listener.SerieSelectedListener;
 import com.ags.pirate.listener.TorrentSelectedListener;
 import com.ags.pirate.model.BeanItemContainer;
@@ -17,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,6 +35,9 @@ public class PirateGui {
 
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
+    public static final int MAX_WIDTH_SEEDS = 50;
+    public static final int MAX_WIDTH_LEECHERS = 60;
+    public static final int ROW_HEIGHT = 33;
     private static Logger LOGGER = LoggerFactory.getLogger(Pirate.class);
 
     private PirateService pirateService;
@@ -41,10 +46,15 @@ public class PirateGui {
     private JPanel infoPanel;
     private TorrentTable torrentTable;
     private JButton searchButton;
+    private JPanel seriesPanel;
+    private JTextArea searchingText;
+    private JTextArea foundTorrentsText;
+    private JScrollPane torrentPanel;
 
     private void execute() {
         this.pirateService = new PirateService();
         this.createComponents();
+        this.applyLookAndFeel();
         this.createListeners();
         this.displayComponents();
     }
@@ -60,13 +70,14 @@ public class PirateGui {
 
         //info panel
         infoPanel = new JPanel();
+        infoPanel.setMinimumSize(new Dimension(0,30));
         frame.add(infoPanel, BorderLayout.SOUTH);
 
         //series list
         List<Serie> series = pirateService.getSeries();
         seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
         searchButton = new JButton("Custom search");
-        JPanel seriesPanel = new JPanel();
+        seriesPanel = new JPanel();
         seriesPanel.setLayout(new MigLayout());
         frame.add(seriesPanel, BorderLayout.WEST);
         seriesPanel.add(seriesAvailable, "wrap");
@@ -75,10 +86,56 @@ public class PirateGui {
         //torrent list
         torrentTable = new TorrentTable();
         torrentTable.setAutoCreateRowSorter(true);
-        JScrollPane torrentPanel = new JScrollPane(torrentTable);
+        torrentPanel = new JScrollPane(torrentTable);
         frame.add(torrentPanel, BorderLayout.EAST);
 
+        //info texts
+        searchingText = new JTextArea();
+        foundTorrentsText = new JTextArea();
+
     }
+
+    /**
+     * this could be moved to the components itself but doing this way we centralize
+     * all the feel and look properties.
+     */
+    private void applyLookAndFeel() {
+        seriesPanel.setBackground(ColorProvider.getMainBackgroundColor());
+//        seriesPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+
+        /** series **/
+        seriesAvailable.setBackground(ColorProvider.getMainBackgroundColor());
+        seriesAvailable.setForeground(ColorProvider.getMainFontColor());
+        seriesAvailable.setSelectionBackground(ColorProvider.getMainSelectedColor());
+        seriesAvailable.setSelectionForeground(ColorProvider.getMainFontColor());
+
+
+        /** search button **/
+        searchButton.setBackground(ColorProvider.getSecondaryBackgroundColor());
+        searchButton.setForeground(ColorProvider.getSecondaryFontColor());
+        searchButton.setFocusPainted(false);
+
+        /** info botton panel **/
+        infoPanel.setBackground(ColorProvider.getMainBackgroundColor());
+        infoPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+
+        /** info texts **/
+        searchingText.setBackground(ColorProvider.getMainBackgroundColor());
+        searchingText.setForeground(ColorProvider.getMainFontColor());
+        foundTorrentsText.setBackground(ColorProvider.getMainBackgroundColor());
+        foundTorrentsText.setForeground(ColorProvider.getMainFontColor());
+
+        /** torrent list **/
+        torrentTable.setBackground(ColorProvider.getSecondaryBackgroundColor());
+        torrentTable.setForeground(ColorProvider.getSecondaryFontColor());
+        torrentTable.getTableHeader().setBackground(ColorProvider.getMainBackgroundColor());
+        torrentTable.getTableHeader().setForeground(ColorProvider.getMainFontColor());
+        torrentPanel.setBackground(ColorProvider.getMainBackgroundColor());
+        torrentPanel.getVerticalScrollBar().setUI(new ScrollBar());
+        torrentPanel.getViewport().setBackground(ColorProvider.getSecondaryBackgroundColor());
+        torrentPanel.setBorder(BorderFactory.createEmptyBorder());
+    }
+
 
     private void createListeners() {
         searchButton.addActionListener(new ActionListener() {
@@ -137,13 +194,15 @@ public class PirateGui {
 
         infoPanel.removeAll();
         infoPanel.add(new JLabel(new ImageIcon(getClass().getResource("1-1.gif"))));
-        infoPanel.add(new JTextArea("Searching torrents for " + serie.getTitle()));
+        searchingText.setText("Searching torrents for " + serie.getTitle());
+        infoPanel.add(searchingText);
         frame.pack();
     }
 
     private void populateTorrents(List<Torrent> torrents) {
         infoPanel.removeAll();
-        infoPanel.add(new JTextArea("Found " + torrents.size() + " torrent(s)"));
+        foundTorrentsText.setText("Found " + torrents.size() + " torrent(s)");
+        infoPanel.add(foundTorrentsText);
         torrentTable.setTorrentSelectedListener(new TorrentSelectedListener() {
             @Override
             public void actionPerformed(TorrentSelectedEvent event) {
@@ -152,9 +211,9 @@ public class PirateGui {
         });
         BeanItemTableModel tableModel = createTorrentBeanItemTableModel(torrents);
         torrentTable.setModel(tableModel);
-        torrentTable.getColumn("seeds").setMaxWidth(50);
-        torrentTable.getColumn("leechers").setMaxWidth(60);
-        torrentTable.setRowHeight(33);
+        torrentTable.getColumn("seeds").setMaxWidth(MAX_WIDTH_SEEDS);
+        torrentTable.getColumn("leechers").setMaxWidth(MAX_WIDTH_LEECHERS);
+        torrentTable.setRowHeight(ROW_HEIGHT);
     }
 
 
