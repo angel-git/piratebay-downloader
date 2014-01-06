@@ -33,8 +33,8 @@ import java.util.List;
  */
 public class PirateGui {
 
-    public static final int WIDTH = 900;
-    public static final int HEIGHT = 600;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 500;
     public static final int MAX_WIDTH_SEEDS = 50;
     public static final int MAX_WIDTH_LEECHERS = 60;
     public static final int ROW_HEIGHT = 33;
@@ -63,9 +63,9 @@ public class PirateGui {
     private void createComponents() {
         //Create and set up the window.
         frame = new JFrame("PirateBay downloader");
-        frame.setSize(WIDTH, HEIGHT);
+        frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        MigLayout layout = new MigLayout("", "[][]", "[]");
+        MigLayout layout = new MigLayout("", "[0:0,grow 25,fill]0[0:0,grow 75,fill]", "[]0[]");
         frame.getContentPane().setLayout(layout);
 
         //info panel
@@ -87,6 +87,7 @@ public class PirateGui {
         torrentTable = new TorrentTable();
         torrentTable.setAutoCreateRowSorter(true);
         torrentPanel = new JScrollPane(torrentTable);
+        torrentPanel.setMinimumSize(new Dimension(WIDTH,HEIGHT));
         frame.add(torrentPanel, BorderLayout.EAST);
 
         //info texts
