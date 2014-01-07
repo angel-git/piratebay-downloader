@@ -3,8 +3,8 @@ package com.ags.pirate;
 import com.ags.pirate.configuration.Configuration;
 import com.ags.pirate.event.SerieSelectedEvent;
 import com.ags.pirate.event.TorrentSelectedEvent;
-import com.ags.pirate.gui.SeriesList;
-import com.ags.pirate.gui.TorrentTable;
+import com.ags.pirate.gui.*;
+import com.ags.pirate.gui.ListCellRenderer;
 import com.ags.pirate.gui.fal.ColorProvider;
 import com.ags.pirate.gui.fal.ScrollBar;
 import com.ags.pirate.listener.SerieSelectedListener;
@@ -76,6 +76,7 @@ public class PirateGui {
         //series list
         List<Serie> series = pirateService.getSeries();
         seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
+        seriesAvailable.setCellRenderer(new ListCellRenderer());
         searchButton = new JButton("Custom search");
         seriesPanel = new JPanel();
         seriesPanel.setLayout(new MigLayout());

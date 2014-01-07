@@ -17,6 +17,9 @@ public class ColorProvider {
 
     private static final Color KEYWORD_COLOR = new Color(203,108,46);
 
+    private static final Color SERIE_PREMIERE = new Color(98,151,85);
+    private static final Color SERIE_FINALE = new Color(209,103,90);
+
 
     public static Color getMainSelectedColor() {
         return MAIN_SELECTED_COLOR;
@@ -41,5 +44,13 @@ public class ColorProvider {
 
     public static Color getSecondaryBackgroundColor() {
         return SECONDARY_BACKGROUND_COLOR;
+    }
+
+    public static Color getSeriePremiere() {
+        return SERIE_PREMIERE;
+    }
+
+    public static Color getSerieFinale() {
+        return SERIE_FINALE;
     }
 }
