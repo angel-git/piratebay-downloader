@@ -29,6 +29,8 @@ public class HTMLDownloader implements Downloader {
 
                 URL url = new URL(urlString);
                 URLConnection urlConnection = url.openConnection();
+                //fix for 403: simulate browser connection
+                urlConnection.setRequestProperty("User-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36");
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                 
                 LOGGER.info("connected to " + urlString);
