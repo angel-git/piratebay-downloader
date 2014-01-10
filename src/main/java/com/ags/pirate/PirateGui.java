@@ -47,8 +47,7 @@ public class PirateGui {
     private TorrentTable torrentTable;
     private JButton searchButton;
     private JPanel seriesPanel;
-    private JTextArea searchingText;
-    private JTextArea foundTorrentsText;
+    private JLabel searchingText;
     private JScrollPane torrentPanel;
 
     private void execute() {
@@ -92,8 +91,8 @@ public class PirateGui {
         frame.add(torrentPanel, BorderLayout.EAST);
 
         //info texts
-        searchingText = new JTextArea();
-        foundTorrentsText = new JTextArea();
+        searchingText = new JLabel();
+        infoPanel.add(searchingText);
 
     }
 
@@ -124,8 +123,6 @@ public class PirateGui {
         /** info texts **/
         searchingText.setBackground(ColorProvider.getMainBackgroundColor());
         searchingText.setForeground(ColorProvider.getMainFontColor());
-        foundTorrentsText.setBackground(ColorProvider.getMainBackgroundColor());
-        foundTorrentsText.setForeground(ColorProvider.getMainFontColor());
 
         /** torrent list **/
         torrentTable.setBackground(ColorProvider.getSecondaryBackgroundColor());
@@ -194,17 +191,14 @@ public class PirateGui {
         };
         new Thread(runnable).start();
 
-        infoPanel.removeAll();
-        infoPanel.add(new JLabel(new ImageIcon(getClass().getResource("1-1.gif"))));
         searchingText.setText("Searching torrents for " + serie.getTitle());
-        infoPanel.add(searchingText);
+        searchingText.setIcon(new ImageIcon(getClass().getResource("1-1.gif")));
         frame.pack();
     }
 
     private void populateTorrents(List<Torrent> torrents) {
-        infoPanel.removeAll();
-        foundTorrentsText.setText("Found " + torrents.size() + " torrent(s)");
-        infoPanel.add(foundTorrentsText);
+        searchingText.setIcon(null);
+        searchingText.setText("Found " + torrents.size() + " torrent(s)");
         torrentTable.setTorrentSelectedListener(new TorrentSelectedListener() {
             @Override
             public void actionPerformed(TorrentSelectedEvent event) {
