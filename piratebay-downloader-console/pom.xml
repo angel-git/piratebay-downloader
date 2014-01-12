@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.ags</groupId>
+        <artifactId>piratebay-downloader</artifactId>
+        <version>0.4.3</version>
+    </parent>
+
+    <artifactId>piratebay-downloader-console</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.ags</groupId>
+            <artifactId>piratebay-downloader-service</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>package</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>appassembler-maven-plugin</artifactId>
+                        <version>1.7</version>
+                        <configuration>
+                            <assembleDirectory>${project.build.directory}/pirate-console</assembleDirectory>
+                            <platforms>
+                                <platform>all</platform>
+                            </platforms>
+                            <programs>
+                                <program>
+                                    <mainClass>com.ags.pirate.Pirate</mainClass>
+                                    <name>Pirate</name>
+                                </program>
+                            </programs>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>pack</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assemble</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+    </profiles>
+
+
+</project>
