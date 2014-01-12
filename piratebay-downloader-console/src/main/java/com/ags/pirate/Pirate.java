@@ -3,6 +3,7 @@ package com.ags.pirate;
 import com.ags.pirate.common.configuration.Configuration;
 import com.ags.pirate.common.model.Serie;
 import com.ags.pirate.common.model.Torrent;
+import com.ags.pirate.service.CalendarService;
 import com.ags.pirate.service.PirateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class Pirate  {
     private final String firstep = "\033[33m";
 
     private PirateService pirateService;
+    private CalendarService calendarService;
 
 
     public static void main(String... args) throws IOException {
@@ -39,7 +41,8 @@ public class Pirate  {
 
     private void execute() {
         this.pirateService = new PirateService();
-        List<Serie> series = pirateService.getSeries();
+        this.calendarService = new CalendarService();
+        List<Serie> series = calendarService.getSeries();
         if (series.size() < 1) {
             //no series found exit program
             LOGGER.warn("no series has been found for today");

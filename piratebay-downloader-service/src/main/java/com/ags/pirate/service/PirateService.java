@@ -18,16 +18,10 @@ public class PirateService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(PirateService.class);
 
-    private CalendarParser calendarParser;
     private PirateBayParser pirateBayParser;
 
     public PirateService() {
-        this.calendarParser = new CalendarParser();
         this.pirateBayParser = new PirateBayParser();
-    }
-
-    public List<Serie> getSeries() {
-        return calendarParser.parseCalendar();
     }
 
     public List<Torrent> getTorrents(Serie serie) {

@@ -14,6 +14,7 @@ import com.ags.pirate.gui.listener.SerieSelectedListener;
 import com.ags.pirate.gui.listener.TorrentSelectedListener;
 import com.ags.pirate.gui.model.BeanItemContainer;
 import com.ags.pirate.gui.model.BeanItemTableModel;
+import com.ags.pirate.service.CalendarService;
 import com.ags.pirate.service.PirateService;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ public class PirateGui {
     private static Logger LOGGER = LoggerFactory.getLogger(PirateGui.class);
 
     private PirateService pirateService;
+    private CalendarService calendarService;
     private JFrame frame;
     private SeriesList seriesAvailable;
     private JPanel infoPanel;
@@ -53,6 +55,7 @@ public class PirateGui {
 
     private void execute() {
         this.pirateService = new PirateService();
+        this.calendarService = new CalendarService();
         this.createComponents();
         this.applyLookAndFeel();
         this.createListeners();
@@ -74,7 +77,7 @@ public class PirateGui {
         frame.add(infoPanel, BorderLayout.SOUTH);
 
         //series list
-        List<Serie> series = pirateService.getSeries();
+        List<Serie> series = calendarService.getSeries();
         seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
         seriesAvailable.setCellRenderer(new ListCellRenderer());
         searchButton = new JButton("Custom search");
