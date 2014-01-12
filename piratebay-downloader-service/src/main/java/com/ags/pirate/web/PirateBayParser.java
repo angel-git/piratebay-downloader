@@ -3,8 +3,8 @@ package com.ags.pirate.web;
 import com.ags.pirate.common.configuration.Configuration;
 import com.ags.pirate.common.model.Serie;
 import com.ags.pirate.common.model.Torrent;
-import com.ags.pirate.web.downloader.HTMLDownloader;
-import com.ags.pirate.web.downloader.HTMLProxyDownloader;
+import com.ags.pirate.web.downloader.Downloader;
+import com.ags.pirate.web.downloader.HTMLDownloaderFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,28 +25,21 @@ import java.util.List;
 public class PirateBayParser {
 
     private static Logger LOGGER = LoggerFactory.getLogger(PirateBayParser.class);
-    private final Configuration configuration;
+    private Configuration configuration;
+    private Downloader downloader;
 
     public PirateBayParser() {
+        this.downloader = HTMLDownloaderFactory.createDownloader();
         this.configuration = Configuration.getInstance();
     }
 
-    public List<Torrent> searchSerie(Serie serie)  {
+    public List<Torrent> searchSerie(Serie serie) {
 
         List<Torrent> torrents = new ArrayList<Torrent>();
 
-         String html;
+        String html;
         try {
-            if (configuration.isProxyEnabled()) {
-                html = new HTMLProxyDownloader(
-                        configuration.getProxyUser(),
-                        configuration.getProxyPassword(),
-                        configuration.getProxyHost(),
-                        configuration.getProxyPort())
-                       .getHtml(configuration.getPiratebayHost()+"/search/"+convertSearchQuery(serie)+"/0/7/0");
-            } else {
-                html = new HTMLDownloader().getHtml(configuration.getPiratebayHost()+"/search/"+convertSearchQuery(serie)+"/0/7/0");
-            }
+            html = downloader.getHtml(configuration.getPiratebayHost() + "/search/" + convertSearchQuery(serie) + "/0/7/0");
         } catch (Exception e) {
             return torrents;
         }
@@ -57,7 +50,7 @@ public class PirateBayParser {
             return torrents;
         }
         Elements results = searchResult.getElementsByTag("tr");
-        LOGGER.info("torrents found: "+(results.size()-2));
+        LOGGER.info("torrents found: " + (results.size() - 2));
         for (int i = 2; i < results.size(); i++) {
             torrents.add(parseTorrent(results.get(i)));
         }
@@ -74,7 +67,7 @@ public class PirateBayParser {
             int seeds = Integer.parseInt(element.getElementsByTag("td").get(2).text());
             int leeds = Integer.parseInt(element.getElementsByTag("td").get(3).text());
             String desc = element.getElementsByTag("td").get(1).getElementsByClass("detDesc").text();
-            return new Torrent(name,leeds,seeds,link,desc);
+            return new Torrent(name, leeds, seeds, link, desc);
         } catch (RuntimeException e) {
             LOGGER.error("an error raised when parsing the table of the results!!");
             throw e;
@@ -83,6 +76,6 @@ public class PirateBayParser {
 
     private static String convertSearchQuery(Serie serie) {
         String toString = serie.toString();
-        return toString.replace(" ","%20");
+        return toString.replace(" ", "%20");
     }
 }

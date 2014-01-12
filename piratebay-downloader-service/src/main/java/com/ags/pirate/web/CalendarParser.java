@@ -1,9 +1,8 @@
 package com.ags.pirate.web;
 
-import com.ags.pirate.common.configuration.Configuration;
 import com.ags.pirate.common.model.Serie;
-import com.ags.pirate.web.downloader.HTMLDownloader;
-import com.ags.pirate.web.downloader.HTMLProxyDownloader;
+import com.ags.pirate.web.downloader.Downloader;
+import com.ags.pirate.web.downloader.HTMLDownloaderFactory;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -26,13 +25,14 @@ import java.util.List;
  */
 public class CalendarParser  {
 
+    public static final String CALENDAR_URL = "http://www.pogdesign.co.uk/cat";
     private static Logger LOGGER = LoggerFactory.getLogger(CalendarParser.class);
-    private final Configuration configuration;
     private DateTimeFormatter dateFormat;
+    private Downloader downloader;
 
     public CalendarParser() {
-        this.configuration = Configuration.getInstance();
         this.dateFormat = DateTimeFormat.forPattern("dd_M_yyyy");
+        this.downloader = HTMLDownloaderFactory.createDownloader();
     }
 
 
@@ -46,16 +46,7 @@ public class CalendarParser  {
 
         String html;
         try {
-            if (configuration.isProxyEnabled()) {
-                html = new HTMLProxyDownloader(
-                        configuration.getProxyUser(),
-                        configuration.getProxyPassword(),
-                        configuration.getProxyHost(),
-                        configuration.getProxyPort())
-                        .getHtml("http://www.pogdesign.co.uk/cat");
-            } else {
-                html = new HTMLDownloader().getHtml("http://www.pogdesign.co.uk/cat");
-            }
+            html = downloader.getHtml(CALENDAR_URL);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             return series;
