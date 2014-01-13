@@ -1,4 +1,4 @@
-package com.ags.pirate.gui;
+package com.ags.pirate.gui.serie;
 
 
 import com.ags.pirate.common.model.Serie;

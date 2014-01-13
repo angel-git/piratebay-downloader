@@ -38,6 +38,7 @@ public class Configuration {
     private final static String UTORRENT = "pirate.utorrent.folder";
     private final static String PIRATEBAY_HOST = "pirate.host";
     private final static String PROXY_ACTIVATED = "pirate.http.proxyActivated";
+    private final static String PROJECT_VERSION = "pirate.version";
 
 
     public String getProxyHost() {
@@ -66,5 +67,9 @@ public class Configuration {
 
     public boolean isProxyEnabled(){
         return Boolean.parseBoolean(prop.getProperty(PROXY_ACTIVATED).toUpperCase());
+    }
+
+    public String getProjectVersion() {
+        return prop.getProperty(PROJECT_VERSION);
     }
 }

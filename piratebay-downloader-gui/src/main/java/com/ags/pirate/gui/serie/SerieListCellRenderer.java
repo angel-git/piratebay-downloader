@@ -1,4 +1,4 @@
-package com.ags.pirate.gui;
+package com.ags.pirate.gui.serie;
 
 import com.ags.pirate.common.model.Serie;
 import com.ags.pirate.gui.fal.ColorProvider;
@@ -10,7 +10,7 @@ import java.awt.*;
  * @author Angel
  * @since 7/01/14
  */
-public class ListCellRenderer extends DefaultListCellRenderer  {
+public class SerieListCellRenderer extends DefaultListCellRenderer  {
 
 
     @Override

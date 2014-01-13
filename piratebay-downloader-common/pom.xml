@@ -13,6 +13,15 @@
 
     <artifactId>piratebay-downloader-common</artifactId>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>joda-time</groupId>

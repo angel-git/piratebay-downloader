@@ -3,19 +3,14 @@ package com.ags.pirate;
 import com.ags.pirate.common.configuration.Configuration;
 import com.ags.pirate.common.model.Serie;
 import com.ags.pirate.common.model.Torrent;
-import com.ags.pirate.gui.SeriesList;
-import com.ags.pirate.gui.TorrentTable;
 import com.ags.pirate.gui.event.SerieSelectedEvent;
-import com.ags.pirate.gui.event.TorrentSelectedEvent;
-import com.ags.pirate.gui.ListCellRenderer;
+import com.ags.pirate.gui.event.TorrentFoundEvent;
 import com.ags.pirate.gui.fal.ColorProvider;
-import com.ags.pirate.gui.fal.ScrollBar;
+import com.ags.pirate.gui.info.InfoView;
 import com.ags.pirate.gui.listener.SerieSelectedListener;
-import com.ags.pirate.gui.listener.TorrentSelectedListener;
-import com.ags.pirate.gui.model.BeanItemContainer;
-import com.ags.pirate.gui.model.BeanItemTableModel;
-import com.ags.pirate.service.CalendarService;
-import com.ags.pirate.service.PirateService;
+import com.ags.pirate.gui.listener.TorrentFoundListener;
+import com.ags.pirate.gui.serie.SeriesView;
+import com.ags.pirate.gui.torrent.TorrentView;
 import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +18,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
@@ -37,25 +30,15 @@ public class PirateGui {
 
     public static final int WIDTH = 800;
     public static final int HEIGHT = 500;
-    public static final int MAX_WIDTH_SEEDS = 50;
-    public static final int MAX_WIDTH_LEECHERS = 60;
-    public static final int ROW_HEIGHT = 33;
     private static Logger LOGGER = LoggerFactory.getLogger(PirateGui.class);
 
-    private PirateService pirateService;
-    private CalendarService calendarService;
     private JFrame frame;
-    private SeriesList seriesAvailable;
-    private JPanel infoPanel;
-    private TorrentTable torrentTable;
-    private JButton searchButton;
-    private JPanel seriesPanel;
-    private JLabel searchingText;
-    private JScrollPane torrentPanel;
+    private InfoView infoView;
+
+    private SeriesView seriesView;
+    private TorrentView torrentView;
 
     private void execute() {
-        this.pirateService = new PirateService();
-        this.calendarService = new CalendarService();
         this.createComponents();
         this.applyLookAndFeel();
         this.createListeners();
@@ -65,39 +48,25 @@ public class PirateGui {
 
     private void createComponents() {
         //Create and set up the window.
-        frame = new JFrame("PirateBay downloader");
+        frame = new JFrame("PirateBay downloader "+ Configuration.getInstance().getProjectVersion());
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         MigLayout layout = new MigLayout("", "[0:0,grow 25,fill]0[0:0,grow 75,fill]", "[]0[]");
         frame.getContentPane().setLayout(layout);
 
         //info panel
-        infoPanel = new JPanel();
-        infoPanel.setMinimumSize(new Dimension(0,30));
-        frame.add(infoPanel, BorderLayout.SOUTH);
+        infoView = new InfoView();
+        infoView.setMinimumSize(new Dimension(0,30));
+        frame.add(infoView, BorderLayout.SOUTH);
 
         //series list
-        List<Serie> series = calendarService.getSeries();
-        seriesAvailable = new SeriesList(series.toArray(new Serie[series.size()]));
-        seriesAvailable.setCellRenderer(new ListCellRenderer());
-        searchButton = new JButton("Custom search");
-        seriesPanel = new JPanel();
-        seriesPanel.setLayout(new MigLayout());
-        frame.add(seriesPanel, BorderLayout.WEST);
-        seriesPanel.add(seriesAvailable, "wrap");
-        seriesPanel.add(searchButton);
+        seriesView = new SeriesView();
+        frame.add(seriesView, BorderLayout.WEST);
 
         //torrent list
-        torrentTable = new TorrentTable();
-        torrentTable.setAutoCreateRowSorter(true);
-        torrentPanel = new JScrollPane(torrentTable);
-        torrentPanel.setMinimumSize(new Dimension(WIDTH,HEIGHT));
-        frame.add(torrentPanel, BorderLayout.EAST);
-
-        //info texts
-        searchingText = new JLabel();
-        infoPanel.add(searchingText);
-
+        torrentView = new TorrentView();
+        torrentView.setMinimumSize(new Dimension(WIDTH,HEIGHT));
+        frame.add(torrentView, BorderLayout.EAST);
     }
 
     /**
@@ -105,56 +74,26 @@ public class PirateGui {
      * all the feel and look properties.
      */
     private void applyLookAndFeel() {
-        seriesPanel.setBackground(ColorProvider.getMainBackgroundColor());
-//        seriesPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-
-        /** series **/
-        seriesAvailable.setBackground(ColorProvider.getMainBackgroundColor());
-        seriesAvailable.setForeground(ColorProvider.getMainFontColor());
-        seriesAvailable.setSelectionBackground(ColorProvider.getMainSelectedColor());
-        seriesAvailable.setSelectionForeground(ColorProvider.getMainFontColor());
-
-
-        /** search button **/
-        searchButton.setBackground(ColorProvider.getSecondaryBackgroundColor());
-        searchButton.setForeground(ColorProvider.getSecondaryFontColor());
-        searchButton.setFocusPainted(false);
-
-        /** info botton panel **/
-        infoPanel.setBackground(ColorProvider.getMainBackgroundColor());
-        infoPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-
+        /** series list **/
+        seriesView.applyFeelAndLook();
         /** info texts **/
-        searchingText.setBackground(ColorProvider.getMainBackgroundColor());
-        searchingText.setForeground(ColorProvider.getMainFontColor());
-
+        infoView.applyFeelAndLook();
         /** torrent list **/
-        torrentTable.setBackground(ColorProvider.getSecondaryBackgroundColor());
-        torrentTable.setForeground(ColorProvider.getSecondaryFontColor());
-        torrentTable.getTableHeader().setBackground(ColorProvider.getMainBackgroundColor());
-        torrentTable.getTableHeader().setForeground(ColorProvider.getMainFontColor());
-        torrentPanel.setBackground(ColorProvider.getMainBackgroundColor());
-        torrentPanel.getVerticalScrollBar().setUI(new ScrollBar());
-        torrentPanel.getViewport().setBackground(ColorProvider.getSecondaryBackgroundColor());
-        torrentPanel.setBorder(BorderFactory.createEmptyBorder());
+        torrentView.applyFeelAndLook();
     }
 
 
     private void createListeners() {
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String input = JOptionPane.showInputDialog(frame, "Search torrents");
-                if (input != null && !input.trim().equals("")) {
-                    searchTorrents(new Serie(input, "", ""));
-                }
-            }
-        });
-
-        seriesAvailable.setSerieSelectedListener(new SerieSelectedListener() {
+        seriesView.setSerieSelectedListener(new SerieSelectedListener() {
             @Override
             public void actionPerformed(final SerieSelectedEvent event) {
                 searchTorrents(event.getSerieSelected());
+            }
+        });
+        torrentView.setTorrentsFoundListener(new TorrentFoundListener() {
+            @Override
+            public void actionPerformed(TorrentFoundEvent event) {
+                updateInfoPanel(event.getCount());
             }
         });
     }
@@ -166,54 +105,27 @@ public class PirateGui {
         frame.setVisible(true);
     }
 
-    private BeanItemTableModel createTorrentBeanItemTableModel(List<Torrent> torrents) {
-        BeanItemContainer<Torrent> beanItemContainer = new BeanItemContainer<Torrent>(torrents);
-        BeanItemTableModel tableModel = new BeanItemTableModel(beanItemContainer);
-        tableModel.setVisibleColumns(new String[]{"info", "seeds", "leechers"});
-        tableModel.setColumnHeader("info", "Torrent's name");
-        return tableModel;
-    }
 
     private void searchTorrents(final Serie serie) {
-        //different thread to update the UI
-        seriesAvailable.setEnabled(false);
+        seriesView.setEnabled(false);
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    List<Torrent> torrents = pirateService.getTorrents(serie);
-                    if (torrents.size() == 0) {
-                        //TODO add alert message
-                        LOGGER.warn("no torrents found!");
-                    }
-                    populateTorrents(torrents);
+                    torrentView.searchTorrent(serie);
                 } finally {
                     frame.pack();
-                    seriesAvailable.setEnabled(true);
+                    seriesView.setEnabled(true);
                 }
             }
         };
         new Thread(runnable).start();
-
-        searchingText.setText("Searching torrents for " + serie.getTitle());
-        searchingText.setIcon(new ImageIcon(getClass().getResource("1-1.gif")));
+        infoView.updateInfoText(new ImageIcon(getClass().getResource("1-1.gif")), "Searching torrents for " + serie.getTitle());
         frame.pack();
     }
 
-    private void populateTorrents(List<Torrent> torrents) {
-        searchingText.setIcon(null);
-        searchingText.setText("Found " + torrents.size() + " torrent(s)");
-        torrentTable.setTorrentSelectedListener(new TorrentSelectedListener() {
-            @Override
-            public void actionPerformed(TorrentSelectedEvent event) {
-                pirateService.downloadTorrent(event.getTorrentSelected(), Configuration.getInstance().getUtorrent());
-            }
-        });
-        BeanItemTableModel tableModel = createTorrentBeanItemTableModel(torrents);
-        torrentTable.setModel(tableModel);
-        torrentTable.getColumn("seeds").setMaxWidth(MAX_WIDTH_SEEDS);
-        torrentTable.getColumn("leechers").setMaxWidth(MAX_WIDTH_LEECHERS);
-        torrentTable.setRowHeight(ROW_HEIGHT);
+    private void updateInfoPanel(int size) {
+        infoView.updateInfoText(null, "Found " + size + " torrent(s)");
     }
 
 
