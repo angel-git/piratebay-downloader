@@ -2,6 +2,7 @@ package com.ags.pirate.gui.serie;
 
 import com.ags.pirate.gui.mvc.AbstractController;
 import com.ags.pirate.service.CalendarService;
+import org.joda.time.LocalDate;
 
 /**
  * @author Angel
@@ -22,6 +23,13 @@ public class SeriesController extends AbstractController<SeriesModel> {
      */
     public void searchSeries() {
         getModel().setSerieList(calendarService.getSeries());
+    }
+
+    /**
+     * Search the series and populates them to the model.
+     */
+    public void searchSeries(LocalDate date) {
+        getModel().setSerieList(calendarService.getSeries(date));
     }
 
 

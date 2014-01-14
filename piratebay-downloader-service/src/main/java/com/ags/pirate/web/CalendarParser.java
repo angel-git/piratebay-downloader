@@ -29,10 +29,21 @@ public class CalendarParser  {
     private static Logger LOGGER = LoggerFactory.getLogger(CalendarParser.class);
     private DateTimeFormatter dateFormat;
     private Downloader downloader;
+    private Document document;
 
     public CalendarParser() {
-        this.dateFormat = DateTimeFormat.forPattern("dd_M_yyyy");
+        this.dateFormat = DateTimeFormat.forPattern("d_M_yyyy");
         this.downloader = HTMLDownloaderFactory.createDownloader();
+        this.loadCalendar();
+    }
+
+    private void loadCalendar() {
+        try {
+            String html = downloader.getHtml(CALENDAR_URL);
+            document = Jsoup.parse(html);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
 
@@ -42,21 +53,16 @@ public class CalendarParser  {
      * @return the series of the input date.
      */
     public List<Serie> parseCalendar(LocalDate date) {
-        List<Serie> series = new ArrayList<Serie>();
-
-        String html;
-        try {
-            html = downloader.getHtml(CALENDAR_URL);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            return series;
+        if (document == null) {
+            loadCalendar();
         }
-        Document document = Jsoup.parse(html);
+        //TODO can´t search the previous month
+        List<Serie> series = new ArrayList<Serie>();
         String todayId = "d_"+dateFormat.print(date);
         Element today = document.getElementById(todayId);
         if (today != null) {
             Elements divs = today.getElementsByTag("div");
-            LOGGER.info("TV series found for today: {}", new Integer[]{divs.size()});
+            LOGGER.info("TV series found: {}", new Integer[]{divs.size()});
             for (Element div : divs) {
                 Elements ps = div.getElementsByTag("p");
                 String className = ps.get(0).className();

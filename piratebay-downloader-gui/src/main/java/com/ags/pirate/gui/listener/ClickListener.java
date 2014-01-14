@@ -5,23 +5,27 @@ import java.awt.event.MouseListener;
 
 /**
  * @author Angel
- * @since 17/11/13
+ * @since 13/01/14
  */
-public abstract class DoubleClickListener extends ClickListener {
+public abstract class ClickListener implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
+
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
+
     }
 }

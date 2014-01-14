@@ -17,8 +17,7 @@ public class SeriesList extends JList<Serie> {
 
     private SerieSelectedListener listener;
 
-    public SeriesList(Serie[] series) {
-        super(series);
+    public SeriesList() {
         this.addMouseListener(new DoubleClickListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -28,6 +27,11 @@ public class SeriesList extends JList<Serie> {
                 }
             }
         });
+    }
+
+    @Override
+    public void setListData(Serie[] listData) {
+        super.setListData(listData);
     }
 
     public void setSerieSelectedListener(SerieSelectedListener listener) {

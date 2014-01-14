@@ -10,6 +10,8 @@ import java.awt.*;
  */
 public class ScrollBar extends BasicScrollBarUI {
 
+
+
     @Override
     protected JButton createDecreaseButton(int orientation) {
         return createEmptyButton();
