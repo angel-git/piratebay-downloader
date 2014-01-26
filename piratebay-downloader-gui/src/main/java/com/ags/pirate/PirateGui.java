@@ -53,6 +53,7 @@ public class PirateGui {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         MigLayout layout = new MigLayout("", "[0:0,grow 25,fill]0[0:0,grow 75,fill]", "[]0[]");
         frame.getContentPane().setLayout(layout);
+        frame.getContentPane().setBackground(ColorProvider.getMainBackgroundColor());
 
         //info panel
         infoView = new InfoView();
