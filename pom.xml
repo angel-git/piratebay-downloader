@@ -6,7 +6,7 @@
 
     <groupId>com.ags</groupId>
     <artifactId>piratebay-downloader</artifactId>
-    <version>0.4.3</version>
+    <version>1.0-alpha</version>
     <packaging>pom</packaging>
 
 
