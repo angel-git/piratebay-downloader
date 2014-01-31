@@ -9,6 +9,12 @@ Is a console and gui environment.
 
 ![Image](screenGui.png?raw=true)
 
+CURRENT BUILDING
+------------
+[![Build Status](https://travis-ci.org/angel-git/piratebay-downloader.png?branch=master)](https://travis-ci.org/angel-git/piratebay-downloader)
+
+
+
 KNOWN ISSUES
 ------------
 - The GUI application is on beta state!!
