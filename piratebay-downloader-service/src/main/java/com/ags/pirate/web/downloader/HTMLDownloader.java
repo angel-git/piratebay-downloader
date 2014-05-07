@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author AGS
@@ -29,10 +31,13 @@ public class HTMLDownloader implements Downloader {
 
                 URL url = new URL(urlString);
                 URLConnection urlConnection = url.openConnection();
+                urlConnection.setRequestProperty("Accept","*/*");
+                //by default piratebay is returning with gzip
+                urlConnection.setRequestProperty("Accept-Encoding","gzip");
                 //fix for 403: simulate browser connection
-                urlConnection.setRequestProperty("User-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.63 Safari/537.36");
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                
+                urlConnection.setRequestProperty("User-agent","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36");
+                BufferedReader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(urlConnection.getInputStream())));
+
                 LOGGER.info("connected to " + urlString);
                 StringBuilder sb = new StringBuilder();
                 String inputLine;
